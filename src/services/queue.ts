@@ -1,5 +1,4 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { Order } from '@/entities/order';
 
 export class Queue {
   private sqsClient: SQSClient;
@@ -10,10 +9,10 @@ export class Queue {
     this.queueUrl = queueUrl;
   }
 
-  async enqueue(order: Order): Promise<string> {
+  async enqueue(message): Promise<string> {
     const command = new SendMessageCommand({
       QueueUrl: this.queueUrl,
-      MessageBody: JSON.stringify(order),
+      MessageBody: JSON.stringify(message),
     });
 
     const response = await this.sqsClient.send(command);
