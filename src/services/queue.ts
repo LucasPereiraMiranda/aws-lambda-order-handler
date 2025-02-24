@@ -1,7 +1,7 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { Order } from '@/entities/order';
 
-export class OrderQueue {
+export class Queue {
   private sqsClient: SQSClient;
   private queueUrl: string;
 
