@@ -1,0 +1,75 @@
+service: aws-lambda-order-handler
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  stage: dev
+  region: us-east-1
+  memorySize: 128
+  timeout: 3
+  environment:
+    QUEUE_URL: !Ref OrderQueue
+    ORDERS_TABLE: !Ref OrdersTable
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueAttributes
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+      Resource: !GetAtt OrderQueue.Arn
+    - Effect: "Allow"
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:GetItem
+        - dynamodb:Scan
+      Resource: !GetAtt OrdersTable.Arn
+
+functions:
+  publishOrders:
+    handler: src/handlers/publishOrders.handler
+    description: Publish a message to the SQS queue
+    memorySize: 128
+    timeout: 3
+    events:
+      - http:
+          path: publish
+          method: post
+
+  processOrders:
+    handler: src/handlers/processOrders.handler
+    description: Process messages from the SQS queue and store them in DynamoDB
+    memorySize: 128
+    timeout: 3
+    events:
+      - sqs:
+          arn: !GetAtt OrderQueue.Arn
+          batchSize: 5
+
+resources:
+  Resources:
+    OrderQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: OrderQueue-${self:provider.stage}
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt DeadLetterOrderQueue.Arn
+          maxReceiveCount: 5
+
+    DeadLetterOrderQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: DeadLetterOrderQueue-${self:provider.stage}
+
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrdersTable-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH
