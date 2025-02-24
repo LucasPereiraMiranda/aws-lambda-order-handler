@@ -1,12 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { validateOrder, Order } from '@/entities/order';
-import { OrderQueue } from '@/queue/orderQueue';
+import { Queue } from '@/services/queue';
 
 const sqsClient = new SQSClient({
   region: process.env.AWS_REGION || 'us-east-1',
 });
-const orderQueue = new OrderQueue(sqsClient, process.env.QUEUE_URL!);
+const orderQueue = new Queue(sqsClient, process.env.QUEUE_URL!);
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body);
