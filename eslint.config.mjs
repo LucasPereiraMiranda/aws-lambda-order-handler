@@ -15,9 +15,9 @@ export default [
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  prettier, // Desativa regras conflitantes do ESLint
+  prettier,
   {
     plugins: { prettier: prettierPlugin },
-    rules: { 'prettier/prettier': 'error' }, // Mostra erros de formatação
+    rules: { 'prettier/prettier': 'error' },
   },
 ];

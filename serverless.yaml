@@ -1,3 +1,4 @@
+org: lucasstudies
 service: aws-lambda-order-handler
 
 provider:
@@ -28,6 +29,7 @@ provider:
 
 functions:
   publishOrders:
+    name: aws-lambda-order-handler-dev-publish-orders
     handler: src/handlers/publishOrders.handler
     description: Publish a message to the SQS queue
     memorySize: 128
@@ -38,6 +40,7 @@ functions:
           method: post
 
   processOrders:
+    name: aws-lambda-order-handler-dev-process-orders
     handler: src/handlers/processOrders.handler
     description: Process messages from the SQS queue and store them in DynamoDB
     memorySize: 128
@@ -52,7 +55,7 @@ resources:
     OrderQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: OrderQueue-${self:provider.stage}
+        QueueName: order-queue-${self:provider.stage}
         RedrivePolicy:
           deadLetterTargetArn: !GetAtt DeadLetterOrderQueue.Arn
           maxReceiveCount: 5
@@ -60,12 +63,12 @@ resources:
     DeadLetterOrderQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: DeadLetterOrderQueue-${self:provider.stage}
+        QueueName: dead-letter-order-queue-${self:provider.stage}
 
     OrdersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: OrdersTable-${self:provider.stage}
+        TableName: orders-table-${self:provider.stage}
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: orderId
