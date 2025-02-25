@@ -1,6 +1,7 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { IQueue } from '@/services/interface/queue.interface';
 
-export class Queue {
+export class Queue<T> implements IQueue<T> {
   private sqsClient: SQSClient;
   private queueUrl: string;
 
@@ -9,7 +10,7 @@ export class Queue {
     this.queueUrl = queueUrl;
   }
 
-  async enqueue(message): Promise<string> {
+  async enqueue(message: T): Promise<string> {
     const command = new SendMessageCommand({
       QueueUrl: this.queueUrl,
       MessageBody: JSON.stringify(message),
