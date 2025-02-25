@@ -3,16 +3,14 @@ import {
   DynamoDBClient,
   ConditionalCheckFailedException,
 } from '@aws-sdk/client-dynamodb';
-import { validateOrder, Order } from '@/entities/order';
+import { Order } from '@/entities/order/order.type';
+import { validateOrder } from '@/entities/order/order.validation';
 import { OrderRepository } from '@/database/repository/orderRepository';
 
 const dynamoDbClient = new DynamoDBClient({
   region: process.env.AWS_REGION || 'us-east-1',
 });
-const orderRepository = new OrderRepository(
-  dynamoDbClient,
-  process.env.ORDERS_TABLE
-);
+const orderRepository = new OrderRepository(dynamoDbClient);
 
 export const handler: SQSHandler = async (event: SQSEvent) => {
   for (const record of event.Records) {
