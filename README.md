@@ -49,12 +49,12 @@ The developed functions are the following:
 
 ![Functions Preview](.github/img/functions-preview.png)
 
-- publishOrders lambda function (API Gateway → SQS Producer):
+- **publishOrders lambda function** (API Gateway → SQS Producer):
   - Exposes an HTTP endpoint via API Gateway to accept new orders.
   - Validates incoming payloads to ensure data integrity.
   - Publishes the order message to an SQS queue, enabling asynchronous processing.
 
-- processOrders lambda function (SQS Consumer → DynamoDB Writer):
+- **processOrders lambda function** (SQS Consumer → DynamoDB Writer):
   - Listens to the SQS queue and processes incoming order messages.
   - Checks for idempotency before inserting orders into DynamoDB.
   - Handles potential failures and utilizes Dead Letter Queues (DLQs) to prevent message loss.
